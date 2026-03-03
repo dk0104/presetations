@@ -21,7 +21,7 @@ intro *pres_title:
   #!/usr/bin/env bash
   export title="{{pres_title}}"
   if command -v figlet &>/dev/null; then
-    echo "$title" | figlet -f banner3-D -w 240
+    echo "$title" | figlet -f roman -w 240
   else
     echo "$title"
   fi
