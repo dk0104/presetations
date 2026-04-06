@@ -1,5 +1,5 @@
 ---
-title: K8s Troubleshooting
+title: Обеспечение безопасности в Kubernetes
 author: Denis Keksel
 ---
 
@@ -24,18 +24,30 @@ author: Denis Keksel
 <!-- column_layout: [1,3,1] -->
 <!--column: 1 -->
 # Цель Занятия
-
-- Анализировать логи и метрики подов (kubectl logs, describe)
-- Использовать инструменты отладки (k9s, Lens, kubectl debug)
-- Диагностировать сетевые проблемы (Calico, Istio)
-- Восстанавливать работоспособность кластера
-
-
+<!--
+speaker_note: |
+1. Role-Based Access Control 
+Mittels RBAC sollen Benutzer und Service-Accounts  
+-->
+- Kubernetes Security Best Practices: Top 10 Essentials  
+    1. Role-Based Access Control (RBAC)
+    2. Network Policies for Microservices  
+    3. Secrets Management with Vault or Kubernetes Secrets  
+    4. Pod Security Admission (PSA)  
+    5. Regular Pod Image Scanning  
+    6. Audit Logging and Monitoring
 <!-- end_slide -->
 
 <!-- column_layout: [1,3,1] -->
 <!--column: 1 -->
-# План Работы 
+# Маршрут вебинара
+- Теория и мотивация   
+- Управление доступом и настройка ролей
+- Сетевые политики для микросервисов  
+- Управление секретами с помощью Vault 
+
+
+<!-- end_slide -->
 ## Знакомство с Инструментами
 
 <!-- 
@@ -64,42 +76,7 @@ speaker_note: |
        This command splits a CSV file by commas and prints the first two fields, demonstrating AWK's flexibility in handling structured data.  
 -->
 
-  ### Basic linux tools
-  - AWK Test processing
-  - SED Stream editor 
-  - fzf / tv / rg / jq / vim / tmux
-  
-  ### Анализ логов и метрик
-  *Logs*
-   - kubectl log
-   - k9s logs
 
-  *Describe*
-   - kubectl describe
-   - kubectl describe
-
-  *Top*
-   - kubectl top
-   - k9s top
-  ### Инструменты отладки
-
-  - kubectl edit attach cp port forward
-  - K9s edit attach cp port forward
-
-## Стратегия и подход к обработке инцидента
-  - How Complex Systems fail
-  - TTD (Time to Detect) 
-  - TTM (Time to Mitigate) 
-  - TTR (Time to remediate) 
-  - H.A.D.I
-
-## Базовый цикл диагностики инцидента 
-  - 1. GET 2. DESCRIBE 3. LOG 4. WATCH 5. EXEC
-
-## Практика
-
-<!-- reset_layout -->
-<!-- end_slide -->
 
 # Basic Linux tools
 <!-- column_layout: [1,2] -->
