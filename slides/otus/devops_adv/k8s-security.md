@@ -24,251 +24,165 @@ author: Denis Keksel
 <!-- column_layout: [1,3,1] -->
 <!--column: 1 -->
 # Цель Занятия
+---
+## Ознакомиться с основными аспектами безопасности в кластерах Kuberentes.  
+---
+## Получить общее представление о передовых методах и инструментах, необходимых для обеспечения безопасности.
+---
+## Ориентироваться в широком спектре DevSecOps и DevOps 
+---
+<!-- end_slide -->
 <!--
 speaker_note: |
-1. Role-Based Access Control 
-Mittels RBAC sollen Benutzer und Service-Accounts  
--->
-- Kubernetes Security Best Practices: Top 10 Essentials  
+    1. Role-Based Access Control 
+    Mittels RBAC sollen Benutzer und Service-Accounts  
+    Kubernetes Security Best Practices: Top 10 Essentials  
     1. Role-Based Access Control (RBAC)
+    Внедрите RBAC для ограничения прав доступа пользователей и служебных учетных записей. Например, разработчик должен иметь доступ только к определенным пространствам имен, в то время как администратор кластера управляет всеми ресурсами. Такие инструменты, как `kubectl create role` и `kubectl apply -f role-binding.yaml`, обеспечивают точный контроль доступа.
     2. Network Policies for Microservices  
+    Calico und silium Nutzen um die Networkpolicies zu setzen. Trafic ziwishen den pods soll begrentzt werden
     3. Secrets Management with Vault or Kubernetes Secrets  
+    Faelle mit Vault und alternativen beschreiben
     4. Pod Security Admission (PSA)  
+    Включите PSA, чтобы предотвратить повышение привилегий. Политики, такие как `restricted`, ограничивают возможности, запрещая доступ root или монтирование томов. Pod, нарушающий эти правила, автоматически отклоняется, что обеспечивает соблюдение базовых требований безопасности.
     5. Regular Pod Image Scanning  
-    6. Audit Logging and Monitoring
-<!-- end_slide -->
+    Сканируйте образы контейнеров на наличие уязвимостей с помощью Clair или Trivy. Например, сканирование может выявить устаревший образ `nginx` с критической уязвимостью CVE, что потребует отката к исправленной версии. Автоматизируйте этот процесс с помощью
+
+-->
+
 
 <!-- column_layout: [1,3,1] -->
 <!--column: 1 -->
 # Маршрут вебинара
-- Теория и мотивация   
-- Управление доступом и настройка ролей
-- Сетевые политики для микросервисов  
-- Управление секретами с помощью Vault 
 
+![DevSecOps](./files/devSecOps.png)
 
+- 1. Теория и мотивация   
+- 2. Управление доступом и настройка ролей
+- 3. Сетевые политики для микросервисов  
+- 4. Управление секретами с помощью Vault 
+- 5. Pod Security Admission (PSA)  
+- 6. Регулярное сканирование образов Pod  
+- 7. Audit Logging and Monitoring  
+- 8. Изоляция кластера при многопользовательском режиме  
+- 9. Автоматические проверки соответствия требованиям  
+
+<!-- reset_layout -->
 <!-- end_slide -->
-## Знакомство с Инструментами
 
-<!-- 
-speaker_note: |
-    AWK is a versatile programming language and command-line utility designed for text processing, particularly in Unix-like operating systems. Developed in 1977 by Alfred Aho, Peter Weinberger, and Brian Kernighan,
+# Теория и мотивация   
 
-    Key Features of AWK  
+<!-- column_layout: [1,3,1] -->
+<!--column: 1 -->
+- Risk's to our applications and Infrastructure 
 
-    1. **Pattern-Scanning and Processing**  
-       AWK processes text line by line, applying rules defined by patterns and actions. For example, the command `awk '/error/ {print $1}' error.log` searches for lines containing the word "error" and prints the first field (e.g., a timestamp or log level). This approach allows users to filter and transform data efficiently.  
+    [OWASP Kubernetes Top 10](https://owasp.org/www-project-kubernetes-top-ten/)
 
-    2. **Text Manipulation Capabilities**  
-       AWK supports string operations, arithmetic calculations, and conditional logic. It can handle tasks like:  
-       - Extracting specific fields (e.g., `print $3` to output the third column of a CSV file).  
-       - Replacing text with `sub(/old/, "new")` or `gsub(/pattern/, "replacement")`.  
-       - Counting occurrences of a word: `awk '{count[$0]++} END {for (i in count) print i, count[i]}' data.txt`.  
-
-    3. **Built-in Variables and Arrays**  
-       AWK provides predefined variables like `NR` (number of records processed) and `FS` (field separator). Users can also create arrays for storing and analyzing data. For instance, `arr[$1]++` counts the frequency of each unique value in the first field.  
-
-    4. **Integration with Shell Scripts**  
-       AWK is often used in shell scripts to automate repetitive tasks. Example:  
-
-       awk -F',' '{print $1, $2}' data.csv
-
-       This command splits a CSV file by commas and prints the first two fields, demonstrating AWK's flexibility in handling structured data.  
--->
+![Kubernetes API Request Flow](./files/KubeFlow.png)
 
 
+<!-- reset_layout -->
+<!-- end_slide -->
 
-# Basic Linux tools
-<!-- column_layout: [1,2] -->
+# Управление доступом и настройка ролей
+
+<!-- column_layout: [1,3,1] -->
+<!--column: 1 -->
+## RBAC 
+![rbac](./files/rbac.png)
+### Основные компоненты:
+*Roles and Bindings*
+- `Role`/`ClusterRole`                : Что можно делать (набор разрешений)
+- `RoleBinding`/`ClusterRoleBinding`  : Кто может это делать (связь с субъектом)
+
+*Строится на:*
+- Субъекты (subject) : user, process
+-  Ресурсы (resources) : pod, nodes, secrets
+- Глаголы (verbs) : create, get, patch, delete, watch
+- Базовые роли: admin, edit, view
+
+
+<!-- reset_layout -->
+<!-- column_layout: [1,1,1] -->
 <!--column: 0 -->
-- AWK
- ```bash +no_background +line_numbers
- awk -F',' '{print $1, $2}' data.csv 
+ ```shell +no_background +line_numbers
+kubectl get roles
+kubectl get rolebindings
  ``` 
- - SED
-  ```bash +no_background +line_numbers
-  sed 's/apple/orange/' input.txt 
-  ``` 
- - Fzf
- ```bash +no_background +line_numbers
- k get log po test | fzf 
+<!--column: 1 -->
+ ```shell +no_background +line_numbers
+kubectl kerew install who-can 
+kubectl who-can create pods
  ``` 
-
-<!-- reset_layout -->
-<!-- end_slide -->
-# kubectl
-- kubectl --help
- ```bash +exec +no_background +line_numbers
-kubectl get pod --help 
+<!--column: 2 -->
+ ```shell +no_background +line_numbers
+kubectl describe role
  ``` 
-<!-- end_slide -->
-- kubectl --explain
- ```bash +exec +no_background +line_numbers
-kubectl explain pod --recursive 
- ``` 
-<!-- end_slide -->
-- kubectl krew 
- ```bash +exec +no_background +line_numbers
- kubectl krew -h 
- ``` 
-<!-- end_slide -->
-# Первичный осмотр: kubectl get, top
-- cluster dump
-```bash  +no_background +line_numbers
-kubeclt cluster-info dump
-``` 
-- Show events ( possible with --watch)
- ```bash +exec +no_background +line_numbers
-kubeclt get events 
- ``` 
-<!-- end_slide -->
-# Первичный осмотр: kubectl get, top
-- Get entities ( possible with --watch)
- ```bash +exec +no_background +line_numbers
- kubectl get pods -l app=frontend -n demo-app 
- ``` 
-  ```bash +no_background +line_numbers
-kubectl top node 
-kubectl top pode --sort-by=memory
-  ``` 
-<!-- end_slide -->
-# Диагностика: kubectl describe, logs
-- Describe информации о состоянии объекта
- ```bash +exec +no_background +line_numbers
-kubectl describe -n demo-app pod loadgenerator-5c7cbd94ff-lvv2r    
- ``` 
-
-<!-- end_slide -->
-# Диагностика: kubectl describe, logs
-- logs основной способ анализа
- ```bash +exec +no_background +line_numbers
-kubectl logs -n demo-app -l app=frontend --tail=10 
- ``` 
-
-## Базовый цикл диагностики инцидента 
-[k8s.io mini tutorial](https://kubernetes.io/docs/tasks/debug/debug-cluster/)
-1. GET
-> [!TIP]
-> Найти нужные компоненты  
->
-
-2. DESCRIBE
-> [!TIP]
-> Собрать информацию , выяснить актуальный статус.
->
-
-3. LOG
-> [!TIP]
-> Выяснить причину сбоя.
->
-
-4. WATCH
-> [!TIP]
-> Выяснить причину сбоя.
->
-
-5. EXEC
-> [!TIP]
-> Выяснить причину сбоя.
->
-<!-- end_slide -->
-# How complex systems fail
-[How complex Systems fail](https://how.complexsystems.fail/)
-
-<!-- end_slide -->
-# TTD TTM TTR
-🧩 Пример сценария
-У вас есть веб-приложение для электронной коммерции запущен в производство.
-В 10:00 утра, новое развертывание микросервиса =emailservice= приводит к утечке памяти в службе оформления заказа.
-## TTD
-🔍 Время обнаружения (TTD)
-Определение:
-Время, необходимое для того, чтобы диагностические данные об инциденте дошли до групп разработки и эксплуатации.
-
-📌 Что происходит
-10:00 утра – Использование памяти начинает быстро расти Система мониторинга собирает показатели и журналы
-Оповещение срабатывает, когда память пересекает порог оповещение доходит до дежурного инженера DevOps
-
-⏱️ Измерение
-Предупреждение получено по адресу 10:05 утра
-<!--
-speaker_note: |
-    TTD Time to detect
-    Более короткий TTD означает, что проблемы замечаются быстрее
-    Длительный TTD часто приводит к сбоям в работе клиентов еще до того, как команды узнают о наличии проблемы
--->
-## TTM
-🛠️ Время смягчения (TTM)
-Определение:
-Время, необходимое командам для обработки данных мониторинга и снижения последствий инцидента.
-
-📌 Что происходит
-10:05 утра – Получено оповещение Инженер проверяет панели мониторинга и трассировки
-Выявляет всплеск памяти службы оформления заказа Масштабирует ноды и перезапускает затронутые контейнеры для стабилизации обслуживания
-⏱️ Измерение
-Смягчение последствий завершено в 10:15 утра
-<!--
-speaker_note: |
-    TTM Time to mitigate
-    Смягчение последствий не устраняет основную причину
-    Он восстанавливает доступность услуг и ограничивает влияние на клиентов
--->
-🔧 Время на исправление (TTR)
-Определение:
-Время, необходимое для выявления и окончательного устранения первопричины инцидента.
-
-📌 Что происходит
-10:15 утра – Сервис стабилизирован
-Инженеры анализируют журналы и следы
-Основная причина определена как утечка памяти в новом коде
-Код исправлен, протестирован и повторно развернут
-⏱️ Измерение
-TTR завершено в 12:15 
-<!--
-speaker_note: |
-  TTR измеряет инженерную эффективность
-  Длительный TTR увеличивает вероятность повторных инцидентов
--->
-🏁 Ключевые выводы
-- 🚨 ТТД это о видимость
-- 🛠️ ТТМ это о контроль ущерба
-- 🔧 ТТР это о постоянная резолюция
-<!--
-speaker_note: |
-    Высокопроизводительные команды DevOps сосредоточены на сокращение всех трех, с особым акцентом на быстрое обнаружение и смягчение последствий для защиты клиентов и доходов.Высокопроизводительные команды DevOps сосредоточены на сокращение всех трех, с особым акцентом на быстрое обнаружение и смягчение последствий для защиты клиентов и доходов.
--->
-<!-- end_slide -->
-# HADI 
-> [!IMPORTANT]
-> Цикл HADI — это практичный способ использования данных. Аббревиатура HADI образована от основных шагов программы  
-> - H-Hypothesis: Гипотезы 
-> - A Actions:    Действия 
-> - D Datat:      Данные 
-> - I Insights:   Понимание
-> 
-
-Из чего состоит HADI?
-- H — Гипотеза. Это всегда запускает цикл.
-- А — Действие. Чтобы принять или отвергнуть гипотезу, нужно принять действия. Этот раздел необходим для описания действий и их последующей реализации.
-- D — Данные. Тогда пришло время собрать данные. В этом разделе дано описание параметров, которые должны изменяться под влиянием действий, и способов регистрации этих изменений.
-- I — Прозрения. Последняя итерация цикла — Инсайты. На основании собранных данных мы можем судить, достигли ли мы своих целей или нет. Возможно, гипотеза полезна, но нуждается в некотором улучшении. Необходимо добавить эту информацию в соответствующий раздел и попытаться повторить цикл.
-
-<!--
-speaker_note: |
-- Mehrere zuecklen zullessig aber zu viele zerstoeren das resulta
-- Zusehen dass die hypothesen schnell realisierbar sind
-- Nich nur die realisiurung sondern auch die filter funktionene der methoden sind wichtig 
--->
-
-
 <!-- reset_layout -->
 <!-- end_slide -->
 
-```d2 +render
-my_table: {
-  shape: sql_table
-  id: int {constraint: primary_key}
-  last_updated: timestamp with time zone
-}
+<!-- reset_layout -->
+
+# Сетевые политики для микросервисов  
+
+[Cluster Networking](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
+> [!TIP]
+> По умолчанию все поды могут общаться со всеми
+> Политики работают только с CNI-провайдерами
+> .
+
+> [!WARNING]
+> Используйте Calico или Cilium для определения сетевых политик, изолирующих поды. 
+> Пример: политика, ограничивающая трафик между подами `frontend` и `database`, предотвращает латеральное перемещение. 
+> Конфигурации YAML определяют разрешенные протоколы, порты и IP-адреса источника/назначения.
+> .
+
+## Основные элементы:
+- `podSelector` : Группа подов, к которым применяется политика
+- `ingress` : Правила для *входящего* трафика
+- `egress` : Правила для *исходящего* трафика
+- `NetworkPolicy` — это механизм для изоляции подов на уровне сети
+
+<!-- column_layout: [1,3] -->
+<!--column: 0 -->
+
+- Basic Calico Installation
+```bash +no_background +line_numbers
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 ```
+- Example IP pool configuration:
+```yaml +no_background +line_numbers
+- name: default-ipv4pool
+  cidr: 192.168.0.0/16
+  natOutgoing: true
+```
+
+<!-- reset_layout -->
+<!-- end_slide -->
+
+# Управление секретами с помощью Vault 
+[Vault K8s)](https://developer.hashicorp.com/vault/docs/deploy/kubernetes)
+[Stronghold](https://deckhouse.io/products/stronghold/)
+- Доступ к секретам и их хранение: 
+  - Приложения, использующие службу Vault, работающую в Kubernetes, могут получать доступ к секретам из Vault и хранить их с помощью различных механизмов работы с секретами и методов аутентификации.
+
+- Обеспечение высокой доступности службы Vault: 
+  - Благодаря использованию аффинности под (pod affinities), высоконадежного бэкэнд-хранилища (например, Consul) и функции автоматического разблокирования (auto-unseal) служба Vault может стать высоконадежным сервисом в Kubernetes.
+
+- Шифрование как услуга: 
+  - Приложения, использующие службу Vault, работающую в Kubernetes, могут использовать механизм секретов Transit в качестве «шифрования как услуги». Это позволяет приложениям переносить задачи шифрования на Vault перед хранением данных в состоянии покоя.
+
+- Журналы аудита для Vault: 
+  - Операторы могут присоединить к кластеру Vault постоянный том, который можно использовать для хранения журналов аудита.
+
+- SSH Signing 
+
+<!-- reset_layout -->
+<!-- end_slide -->
+
+# Pod Security Admission (PSA)  
+> [!WARNING]
+> Включите PSA, чтобы предотвратить повышение привилегий. Политики, такие как `restricted`, ограничивают возможности, 
+> запрещая доступ root или монтирование томов. Pod, нарушающий эти правила, автоматически отклоняется, что обеспечивает > соблюдение базовых требований безопасности.  
+> .
 
